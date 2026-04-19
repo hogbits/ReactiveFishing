@@ -1,9 +1,18 @@
 name: ReactiveFishing
 main: com.hogbits.reactivefishing.ReactiveFishingPlugin
-version: 1.0
+version: 1.0.0
 api-version: 1.21
+author: hogbits
+description: Reaction-based fishing minigame for Paper
 
 commands:
   reactivefishing:
+    usage: /<command> reload
     aliases: [rf]
     description: Reload plugin config
+    permission: reactivefishing.reload
+
+permissions:
+  reactivefishing.reload:
+    default: op
+    description: Allows reloading ReactiveFishing config
