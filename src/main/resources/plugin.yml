@@ -1,0 +1,9 @@
+name: ReactiveFishing
+main: com.hogbits.reactivefishing.ReactiveFishingPlugin
+version: 1.0
+api-version: 1.21
+
+commands:
+  reactivefishing:
+    aliases: [rf]
+    description: Reload plugin config
