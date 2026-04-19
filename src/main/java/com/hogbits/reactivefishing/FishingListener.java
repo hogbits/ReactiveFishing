@@ -25,22 +25,35 @@ public final class FishingListener implements Listener {
         minigameManager.onPlayerFish(event);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) {
-            return;
-        }
-
         switch (event.getAction()) {
             case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
-                ItemStack item = event.getItem();
-                if (item != null && item.getType() == Material.FISHING_ROD) {
-                    minigameManager.tryStartMinigame(event.getPlayer());
+                ItemStack item = resolveRodFromEvent(event);
+                if (item == null || item.getType() != Material.FISHING_ROD) {
+                    return;
                 }
+                minigameManager.tryStartMinigame(event.getPlayer());
             }
             default -> {
             }
         }
+    }
+
+    private ItemStack resolveRodFromEvent(PlayerInteractEvent event) {
+        ItemStack direct = event.getItem();
+        if (direct != null) {
+            return direct;
+        }
+
+        Player player = event.getPlayer();
+        if (event.getHand() == EquipmentSlot.HAND) {
+            return player.getInventory().getItemInMainHand();
+        }
+        if (event.getHand() == EquipmentSlot.OFF_HAND) {
+            return player.getInventory().getItemInOffHand();
+        }
+        return null;
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)

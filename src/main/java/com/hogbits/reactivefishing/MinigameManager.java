@@ -36,18 +36,23 @@ public final class MinigameManager {
 
             cancelAndCleanup(player.getUniqueId(), false, false);
 
-            ItemStack loot = createRewardItem();
-            pendingCatches.put(player.getUniqueId(), new PendingCatch(event.getHook(), loot));
-            event.setCancelled(true);
+            pendingCatches.put(player.getUniqueId(), new PendingCatch(event.getHook(), null));
             player.sendMessage(ChatColor.AQUA + "A fish is nibbling! Right-click with your rod now!");
         } else if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
             PendingCatch pending = pendingCatches.get(player.getUniqueId());
-            if (pending == null) {
+            MinigameSession session = sessions.get(player.getUniqueId());
+            if (pending == null && session == null) {
                 return;
             }
 
             if (event.getCaught() instanceof Item itemEntity) {
-                pending.loot = itemEntity.getItemStack().clone();
+                ItemStack caughtLoot = itemEntity.getItemStack().clone();
+                if (pending != null) {
+                    pending.loot = caughtLoot;
+                }
+                if (session != null) {
+                    session.setPendingLoot(caughtLoot);
+                }
                 itemEntity.remove();
             }
 
@@ -143,7 +148,11 @@ public final class MinigameManager {
         sessions.remove(player.getUniqueId());
 
         if (success) {
-            ItemStack reward = createRewardItem();
+            ItemStack reward = session.getPendingLoot() != null
+                    ? session.getPendingLoot().clone()
+                    : new ItemStack(configManager.getFishMaterial() != null
+                    ? configManager.getFishMaterial()
+                    : Material.TROPICAL_FISH);
             player.getInventory().addItem(reward);
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         } else {
@@ -171,11 +180,6 @@ public final class MinigameManager {
                 player.closeInventory();
             }
         }
-    }
-
-    private ItemStack createRewardItem() {
-        Material fishMaterial = configManager.getFishMaterial();
-        return new ItemStack(fishMaterial, 1);
     }
 
     private boolean shouldTrigger() {

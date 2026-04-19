@@ -10,7 +10,7 @@ import org.bukkit.scheduler.BukkitTask;
 public final class MinigameSession {
     private final UUID playerId;
     private final FishHook hook;
-    private final ItemStack pendingLoot;
+    private ItemStack pendingLoot;
     private final int catchStartSlot;
     private final int catchEndSlot;
 
@@ -39,6 +39,10 @@ public final class MinigameSession {
 
     public ItemStack getPendingLoot() {
         return pendingLoot;
+    }
+
+    public void setPendingLoot(ItemStack pendingLoot) {
+        this.pendingLoot = pendingLoot;
     }
 
     public int getCatchStartSlot() {
