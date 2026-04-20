@@ -1,5 +1,6 @@
-fish: TROPICAL_FISH
+fish_indicator: TROPICAL_FISH
 time_limit: 5
 difficulty: 10
 gui_title: "Catch the Fish!"
 trigger_percent: 100
+show_chat: false

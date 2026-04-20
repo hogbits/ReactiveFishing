@@ -5,7 +5,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Item;
@@ -17,13 +16,14 @@ import org.bukkit.inventory.ItemStack;
 public final class MinigameManager {
     private final ReactiveFishingPlugin plugin;
     private final ConfigManager configManager;
-    private final GUIBuilder guiBuilder = new GUIBuilder();
+    private final GUIBuilder guiBuilder;
     private final Map<UUID, PendingCatch> pendingCatches = new ConcurrentHashMap<>();
     private final Map<UUID, MinigameSession> sessions = new ConcurrentHashMap<>();
 
     public MinigameManager(ReactiveFishingPlugin plugin, ConfigManager configManager) {
         this.plugin = plugin;
         this.configManager = configManager;
+        this.guiBuilder = new GUIBuilder(configManager);
     }
 
     public void onPlayerFish(PlayerFishEvent event) {
@@ -37,7 +37,7 @@ public final class MinigameManager {
             cancelAndCleanup(player.getUniqueId(), false, false);
 
             pendingCatches.put(player.getUniqueId(), new PendingCatch(event.getHook(), null));
-            player.sendMessage(ChatColor.AQUA + "A fish is nibbling! Right-click with your rod now!");
+            sendConfiguredMessage(player, ChatColor.AQUA + "A fish is nibbling! Right-click with your rod now!");
         } else if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
             PendingCatch pending = pendingCatches.get(player.getUniqueId());
             MinigameSession session = sessions.get(player.getUniqueId());
@@ -109,11 +109,10 @@ public final class MinigameManager {
         }
 
         boolean success = session.isFishInCatchZone();
-        finishSession(
-                player,
-                success,
-                success ? ChatColor.GREEN + "Perfect catch!" : ChatColor.RED + "Missed timing. Catch failed."
-        );
+        String message = success
+                ? ChatColor.GREEN + "Perfect catch!"
+                : ChatColor.RED + "Missed timing. Catch failed.";
+        finishSession(player, success, message);
     }
 
     public void handleInventoryClose(Player player) {
@@ -146,20 +145,19 @@ public final class MinigameManager {
         session.markFinished();
         session.cancelTasks();
         sessions.remove(player.getUniqueId());
+        retractHook(session);
 
         if (success) {
             ItemStack reward = session.getPendingLoot() != null
                     ? session.getPendingLoot().clone()
-                    : new ItemStack(configManager.getFishMaterial() != null
-                    ? configManager.getFishMaterial()
-                    : Material.TROPICAL_FISH);
+                    : new ItemStack(configManager.getFishIndicatorMaterial());
             player.getInventory().addItem(reward);
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         } else {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 1.0f);
         }
 
-        player.sendMessage(message);
+        sendConfiguredMessage(player, message);
         if (player.getOpenInventory().getTopInventory().equals(session.getInventory())) {
             player.closeInventory();
         }
@@ -170,6 +168,7 @@ public final class MinigameManager {
         if (existingSession != null) {
             existingSession.markFinished();
             existingSession.cancelTasks();
+            retractHook(existingSession);
         }
         if (removePending) {
             pendingCatches.remove(playerId);
@@ -185,6 +184,19 @@ public final class MinigameManager {
     private boolean shouldTrigger() {
         int roll = ThreadLocalRandom.current().nextInt(1, 101);
         return roll <= configManager.getTriggerPercent();
+    }
+
+    private void sendConfiguredMessage(Player player, String message) {
+        if (configManager.isShowChat()) {
+            player.sendMessage(message);
+        }
+    }
+
+    private void retractHook(MinigameSession session) {
+        FishHook hook = session.getHook();
+        if (hook != null && hook.isValid()) {
+            hook.remove();
+        }
     }
 
     private static final class PendingCatch {

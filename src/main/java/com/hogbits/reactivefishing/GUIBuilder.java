@@ -10,6 +10,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 public final class GUIBuilder {
     private static final int[] DECORATIVE_SEAGRASS_SLOTS = {18, 20, 21, 23, 24, 26};
     private static final int[] DECORATIVE_KELP_SLOTS = {19, 22, 25};
+    private final ConfigManager configManager;
+
+    public GUIBuilder(ConfigManager configManager) {
+        this.configManager = configManager;
+    }
 
     public Inventory create(MinigameSession session, String title) {
         MinigameSession.MinigameInventoryHolder holder =
@@ -70,7 +75,7 @@ public final class GUIBuilder {
     }
 
     private ItemStack fishIcon() {
-        ItemStack fish = new ItemStack(Material.PUFFERFISH);
+        ItemStack fish = new ItemStack(configManager.getFishIndicatorMaterial());
         ItemMeta meta = fish.getItemMeta();
         meta.displayName(Component.text("Fish"));
         fish.setItemMeta(meta);
