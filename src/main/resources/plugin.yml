@@ -4,6 +4,8 @@ version: 1.0.0
 api-version: 1.21
 author: hogbits
 description: Reaction-based fishing minigame for Paper
+softdepend:
+  - EvenMoreFish
 
 commands:
   reactivefishing:

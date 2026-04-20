@@ -1,10 +1,12 @@
 package com.hogbits.reactivefishing;
 
+import com.hogbits.reactivefishing.event.ReactiveFishingCatchEvent;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Item;
@@ -145,18 +147,15 @@ public final class MinigameManager {
         session.markFinished();
         session.cancelTasks();
         sessions.remove(player.getUniqueId());
-        retractHook(session);
 
         if (success) {
-            ItemStack reward = session.getPendingLoot() != null
-                    ? session.getPendingLoot().clone()
-                    : new ItemStack(configManager.getFishIndicatorMaterial());
-            player.getInventory().addItem(reward);
+            handleSuccessfulCatch(player, session);
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         } else {
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 1.0f);
         }
 
+        retractHook(session);
         sendConfiguredMessage(player, message);
         if (player.getOpenInventory().getTopInventory().equals(session.getInventory())) {
             player.closeInventory();
@@ -190,6 +189,24 @@ public final class MinigameManager {
         if (configManager.isShowChat()) {
             player.sendMessage(message);
         }
+    }
+
+    private void handleSuccessfulCatch(Player player, MinigameSession session) {
+        ItemStack defaultCatch = session.getPendingLoot() != null
+                ? session.getPendingLoot().clone()
+                : new ItemStack(configManager.getFishIndicatorMaterial());
+
+        FishHook hook = session.getHook();
+        Location location = hook != null ? hook.getLocation() : player.getLocation();
+        ReactiveFishingCatchEvent catchEvent = new ReactiveFishingCatchEvent(player, location, hook, defaultCatch);
+        plugin.getServer().getPluginManager().callEvent(catchEvent);
+
+        if (catchEvent.isCancelled()) {
+            return;
+        }
+
+        ItemStack reward = catchEvent.getDefaultCatch().orElse(defaultCatch);
+        player.getInventory().addItem(reward);
     }
 
     private void retractHook(MinigameSession session) {
