@@ -100,11 +100,12 @@ Implement a reaction-based fishing minigame:
 
 ## Configuration (config.yml)
 ```
-fish: TROPICAL_FISH             # Material used as fishing indicator
-time_limit: 5                   # Time limit in seconds before auto-fail
-difficulty: 10                  # Ticks per fish movement (Lower = faster)
+fish_indicator: TROPICAL_FISH   # Material used as fishing indicator
+time_limit: 10                  # Time limit in seconds before auto-fail
+difficulty: 5                   # Ticks per fish movement (Lower = faster)
 gui_title: "Catch the Fish!"    # Title shown in minigame GUI
 trigger_percent: 100            # Chance (1–100) to trigger minigame
+show_chat: false                # Sends player chat messages during fishing minigame 
 ```
 
 ## Commands
