@@ -5,8 +5,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 public final class ConfigManager {
     private static final Material DEFAULT_FISH_INDICATOR_MATERIAL = Material.TROPICAL_FISH;
-    private static final int DEFAULT_TIME_LIMIT = 5;
-    private static final int DEFAULT_DIFFICULTY = 10;
+    private static final int DEFAULT_TIME_LIMIT = 10;
+    private static final int DEFAULT_DIFFICULTY = 3;
     private static final String DEFAULT_GUI_TITLE = "Catch the Fish!";
     private static final int DEFAULT_TRIGGER_PERCENT = 100;
     private static final boolean DEFAULT_SHOW_CHAT = false;
