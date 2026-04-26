@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import java.util.Map;
 
 public final class EMFProcessor implements Listener {
     private final ReactiveFishingPlugin plugin;
@@ -56,8 +57,16 @@ public final class EMFProcessor implements Listener {
             return;
         }
 
-        // No listener cancelled the synthetic catch; keep a safe fallback catch entity.
-        caughtEntity.setPickupDelay(0);
+        // Move any resulting item entity into the player's inventory instead of leaving it at the hook.
+        if (!caughtEntity.isValid()) {
+            return;
+        }
+
+        ItemStack reward = caughtEntity.getItemStack().clone();
+        caughtEntity.remove();
+
+        Map<Integer, ItemStack> leftovers = player.getInventory().addItem(reward);
+        leftovers.values().forEach(leftover -> player.getWorld().dropItemNaturally(player.getLocation(), leftover));
     }
 
     private void removeIfValid(Entity entity) {
