@@ -59,8 +59,18 @@ public final class GUIBuilder {
     private ItemStack pane(Material material) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(" "));
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+        // meta.displayName(Component.text(" "));
+        meta.displayName(Component.empty());
+        // Clear lore completely
+        meta.lore(null);
+        meta.addItemFlags(
+                ItemFlag.HIDE_ATTRIBUTES,
+                ItemFlag.HIDE_ADDITIONAL_TOOLTIP,
+                ItemFlag.HIDE_ENCHANTS,
+                ItemFlag.HIDE_UNBREAKABLE,
+                ItemFlag.HIDE_DESTROYS,
+                ItemFlag.HIDE_PLACED_ON
+        );
         item.setItemMeta(meta);
         return item;
     }
@@ -68,8 +78,18 @@ public final class GUIBuilder {
     private ItemStack plain(Material material) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(" "));
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+        // meta.displayName(Component.text(" "));
+        meta.displayName(Component.empty());
+        // Clear lore completely
+        meta.lore(null);
+        meta.addItemFlags(
+                ItemFlag.HIDE_ATTRIBUTES,
+                ItemFlag.HIDE_ADDITIONAL_TOOLTIP,
+                ItemFlag.HIDE_ENCHANTS,
+                ItemFlag.HIDE_UNBREAKABLE,
+                ItemFlag.HIDE_DESTROYS,
+                ItemFlag.HIDE_PLACED_ON
+        );
         item.setItemMeta(meta);
         return item;
     }
@@ -77,7 +97,7 @@ public final class GUIBuilder {
     private ItemStack fishIcon() {
         ItemStack fish = new ItemStack(configManager.getFishIndicatorMaterial());
         ItemMeta meta = fish.getItemMeta();
-        meta.displayName(Component.text("Fish"));
+        meta.displayName(Component.text("Catch me if you can"));
         fish.setItemMeta(meta);
         return fish;
     }
